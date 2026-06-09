@@ -4,7 +4,7 @@ import MessageBubble from './MessageBubble.jsx'
 import OptionButtons from './OptionButtons.jsx'
 import TextInput from './TextInput.jsx'
 
-export default function ChatWindow() {
+export default function ChatWindow({ maxHeight }) {
   // Honeypot field: hidden from real users, irresistible to dumb bots. If it
   // ends up filled, useChatMachine drops the submit.
   const honeypotRef = useRef(null)
@@ -93,7 +93,12 @@ export default function ChatWindow() {
   }
 
   return (
-    <div className="flex h-[min(32rem,75vh)] w-[calc(100vw-2.5rem)] max-w-md flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+    <div
+      // Height follows the visible viewport so the input never hides behind the
+      // mobile keyboard; capped at 32rem (512px) on roomy/desktop screens.
+      style={{ height: Math.max(240, Math.min(512, maxHeight ?? 512)) }}
+      className="flex w-[calc(100vw-2.5rem)] max-w-md flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+    >
       {/* Header */}
       <div className="flex items-center gap-2 bg-indigo-600 px-4 py-3 text-white">
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-sm font-bold">

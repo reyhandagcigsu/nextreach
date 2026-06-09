@@ -1,12 +1,24 @@
 import ChatWindow from './ChatWindow.jsx'
+import { useViewport } from '../../hooks/useViewport.js'
 
 // Floating launcher in the bottom-right corner. Controlled by the parent so
 // that other CTAs on the page (e.g. the hero "Bize Ulaşın" button) can open
 // the same chat. ChatWindow mounts only when open, so each open starts fresh.
 export default function ChatWidget({ open, onToggle }) {
+  const { height, offsetBottom } = useViewport()
+
+  // Height available for the chat window above the launcher + keyboard. On
+  // desktop offsetBottom is 0 and height is the full window, so this is large
+  // and the window keeps its normal 32rem cap.
+  const availableHeight = height - offsetBottom - 96
+
   return (
-    <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3">
-      {open && <ChatWindow />}
+    <div
+      className="fixed right-5 z-50 flex flex-col items-end gap-3"
+      // Lift the whole widget above the on-screen keyboard when it's open.
+      style={{ bottom: `calc(1.25rem + ${offsetBottom}px)` }}
+    >
+      {open && <ChatWindow maxHeight={availableHeight} />}
 
       <button
         type="button"
