@@ -150,7 +150,7 @@ Daha fazla soru = daha çok terk.
 **Bilinçli ödünleşim:** Lead'i yalnızca akış tamamlanınca (`SUBMIT`) kaydediyorum;
 yarıda kalan sohbetler tabloyu kirletmesin diye yarım kayıt tutmuyorum. Bunun bedeli:
 e-postayı verip akışı bırakan birini kaçırıyoruz. Alternatif olarak e-posta alındıktan
-sonra kademeli (progressive) kayıt yapılabilirdi — temizlik uğruna bunu tercih etmedim.
+sonra kademeli (progressive) kayıt yapılabilirdi — temizlik için bunu tercih etmedim.
 
 ### 3.2 Chatbot'un tonu ve kişiliği — NextReach'i nasıl temsil ediyor?
 **Ton:** Samimi ama profesyonel, kısa ve net, isimle hitap eden, yer yer hafif emoji
@@ -203,7 +203,7 @@ isteğe bağlı derinlik"):
 sunucu tarafı sayfalama (500 cap'i kaldırmak için) ve realtime güncelleme.
 
 ### 3.5 Kötü niyetli kullanım (spam, boş talep, bot trafiği) için ne yaparım?
-**Önce dürüst tespit:** Supabase anon key bundle'da herkese açıktır. Yani client-side
+**Tespit:** Supabase anon key bundle'da herkese açıktır. Yani client-side
 önlemler (honeypot, validasyon, zorunlu alanlar) bir bot REST endpoint'ine **doğrudan**
 `POST /rest/v1/leads` atınca **atlanır**. O yüzden savunmayı iki kata ayırdım: UX katmanı
 (dürüst kullanıcı + aptal bot) ve **DB katmanı** (bypass'a dayanan tek gerçek savunma).
@@ -237,7 +237,7 @@ gelişmiş bir bot'u ancak sunucu sınırı + captcha tam durdurur.
 - Mimari config tabanlı olduğu için bir soruyu opsiyonel yapmak `flowConfig.js`'te
   `optional: true` eklemekten ibaret — motor değişmez.
 
-**Bilinçli ödünleşim (dürüst not):** "Yalnızca tamamlanmış akışı kaydet" kararı, e-postasını
+**Fedakarlık:** "Yalnızca tamamlanmış akışı kaydet" kararı, e-postasını
 verip ortada kapatan birini kaçırmamıza yol açar. Atlanabilir sorular bu riski büyük ölçüde
 azalttı (artık takılınacak az soru var). Tam çözüm, e-posta alınır alınmaz lead'i
 "incomplete" statüsüyle kaydetmek (kademeli kayıt) olurdu — temizlik uğruna şimdilik
@@ -264,10 +264,9 @@ Gerçek bir deploy'da:
 
 ## 5. Süre, yapamadıklarım ve daha fazla zamanda ekleyeceklerim
 
-> ⏱️ **Toplam süre: ~X saat** &nbsp;_(← gerçek sürenizi buraya yazın)_
+>  **Toplam süre: ~6 saat** &nbsp;
 
 ### 6 saatte yetiştiremediklerim
-- **Deploy linki** — repo + Vercel deploy son adımda; README'deki canlı link buraya gelecek.
 - **Otomatik testler** — FSM motorunu geliştirme sırasında elle (node script) doğruladım,
   ama kalıcı bir test dosyası (Vitest) commit etmedim. Reducer saf olduğu için eklemesi kolay.
 - **Gerçek auth** — kapsam dışıydı; `/admin` env-parola gate'iyle korunuyor (caydırıcı, bk. §4).
@@ -276,13 +275,44 @@ Gerçek bir deploy'da:
   için insert'i bir Edge Function arkasına almak kalan iş.
 
 ### Daha fazla zamanım olsa
-1. **ICP/uygunluk sorusu** — akışa sektör veya **aylık sipariş hacmi** ekleyip lead skorunu
-   gerçek hedef kitleye göre ağırlıklandırmak (mevcut skor sadece elimizdeki alanlarla çalışıyor).
-2. **Supabase Edge Function** — insert'i fonksiyon arkasına alıp doğrulama, rate-limit ve
-   domain kontrolünü sunucuda yapmak.
-3. **Sunucu tarafı sayfalama + realtime** — admin'deki 500 fetch cap'ini kaldırmak; yeni
-   lead'lerin canlı düşmesi.
-4. **Vitest ile testler** — FSM (happy path/validation/skip/spam) ve `leadScore`/`isFreeEmail`
-   yollarını kalıcı test altına almak.
-5. **Kademeli kayıt** — e-posta alınır alınmaz taslak lead'i yazıp, yarıda bırakanları da yakalamak.
-6. **i18n altyapısı** — metinleri sözlüğe taşımak (case'te çoklu dil kapsam dışıydı).
+Aşağıdaki maddeler, MVP'yi üretim olgunluğuna taşıyacak yol haritasını öncelik sırasına
+göre özetler; mevcut mimari (FSM'in veri/motor ayrımı, ayrıştırılmış skorlama, RLS) bu
+adımların çoğunu yıkıcı bir yeniden yazım olmadan kaldıracak şekilde tasarlandı.
+
+**Ürün zekâsı**
+1. **Gerçek yapay zekâ (LLM) entegrasyonu** — Kural tabanlı (FSM) akışın bittiği serbest
+   metin alanlarını (mesaj/talep) bir LLM API'sine (OpenAI/Anthropic) bağlayarak müşterinin
+   **niyetini (intent)** ve **sentiment** analizini modele yorumlatmak. Elde edilen içgörüleri
+   skorlama motoruna girdi vererek, mevcut statik/kural tabanlı lead skorunu **dinamik,
+   bağlama duyarlı ve sürekli öğrenen** bir yapıya taşımak.
+2. **ICP / uygunluk sinyali** — Akışa sektör veya **aylık sipariş hacmi** gibi bir niteleyici
+   ekleyip skoru gerçek hedef kitleye (orta ölçekli e-ticaret) göre ağırlıklandırmak; mevcut
+   skor yalnızca elimizdeki alanlarla çalışıyor (bk. §3.3'teki dürüst sınır).
+
+**Mimari ve ölçeklenebilirlik**
+3. **Bağımsız kurumsal backend (BE) katmanı** — MVP aşamasında hız kazanmak için tercih edilen
+   hazır BaaS (Supabase) yapısından, tamamen şirkete ait, izole bir **Node.js (NestJS/Express)**
+   backend mimarisine geçmek; iş mantığını, doğrulamayı ve üçüncü parti entegrasyonları kendi
+   servis katmanımızda toplayıp tedarikçi bağımlılığını (vendor lock-in) azaltmak. Ara adım
+   olarak insert'i bir **Supabase Edge Function** arkasına alıp doğrulama, rate-limit ve domain
+   kontrolünü sunucu tarafına çekmek (bk. §3.5).
+4. **Sunucu tarafı sayfalama + realtime** — Admin'deki 500 kayıtlık fetch cap'ini kaldırıp
+   sunucu tarafı sayfalama/sıralamaya geçmek ve yeni lead'lerin panele canlı (realtime) düşmesi.
+
+**Güvenlik, kimlik ve uyumluluk**
+5. **Rol tabanlı yetkilendirme (RBAC)** — Admin panelini tek bir env parolasıyla korumak yerine
+   **JWT tabanlı** gerçek bir kimlik doğrulama/yetkilendirme altyapısı kurmak; **Süper Admin,
+   Satış Temsilcisi** gibi rollerle yetki ayrımı yaparak kimin hangi lead'i görüp
+   güncelleyebileceğini denetlemek (bk. §4'teki mevcut caydırıcı çözüm).
+6. **İleri düzey güvenlik ve KVKK/GDPR uyumluluğu** — Hassas kişisel verileri (isim, e-posta,
+   telefon vb.) veritabanında **şifreli (at-rest encryption)** saklamak, API isteklerini sıkı
+   **CORS** politikalarıyla sınırlamak; veri saklama/silme (retention), erişim ve açık rıza
+   süreçleriyle tam **KVKK / GDPR** uyumluluğunu sağlamak.
+
+**Kalite ve sürdürülebilirlik**
+7. **Otomatik testler (Vitest)** — FSM (happy path / validation / skip / spam) ve
+   `leadScore` / `isFreeEmail` yollarını kalıcı test altına alıp CI hattında çalıştırmak.
+8. **Kademeli (progressive) kayıt** — E-posta alınır alınmaz taslak lead'i yazıp yarıda
+   bırakanları da yakalamak; "yalnızca tamamlanmış akışı kaydet" kararının bedelini ortadan
+   kaldırmak (bk. §3.6).
+9. **i18n altyapısı** — Metinleri bir sözlük katmanına taşımak (çoklu dil case'te kapsam dışıydı).
