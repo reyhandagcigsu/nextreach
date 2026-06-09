@@ -7,10 +7,11 @@ import { useViewport } from '../../hooks/useViewport.js'
 export default function ChatWidget({ open, onToggle }) {
   const { height, offsetBottom } = useViewport()
 
-  // Height available for the chat window above the launcher + keyboard. On
-  // desktop offsetBottom is 0 and height is the full window, so this is large
-  // and the window keeps its normal 32rem cap.
-  const availableHeight = height - offsetBottom - 96
+  // `height` is already the *visible* area (above the keyboard). Since we also
+  // lift the whole widget by offsetBottom (below), the space the window can use
+  // is that visible height minus the launcher + gaps + a little top breathing
+  // room. On desktop height = full window, so this stays large (→ 32rem cap).
+  const availableHeight = height - 96
 
   return (
     <div
