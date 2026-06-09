@@ -35,7 +35,7 @@ export default function LeadRow({ lead, onOpen, onUpdate }) {
   return (
     <tr className="group border-b border-slate-100 hover:bg-indigo-50/40">
       {/* Explicit "open detail" affordance so it's clear the row is clickable. */}
-      <td className="py-3 pl-4 pr-1">
+      <td className="py-3 pl-3 pr-1">
         <button
           type="button"
           onClick={() => onOpen(lead)}
@@ -48,7 +48,7 @@ export default function LeadRow({ lead, onOpen, onUpdate }) {
           </svg>
         </button>
       </td>
-      <td className="px-4 py-3">
+      <td className="px-3 py-3">
         <span
           title={reasons.join(' · ') || 'Sinyal yok'}
           className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${tier.className}`}
@@ -66,7 +66,7 @@ export default function LeadRow({ lead, onOpen, onUpdate }) {
       </td>
 
       {/* Inline status — the core "takip" interaction; no need to open the lead. */}
-      <td className="px-4 py-3">
+      <td className="px-3 py-3">
         <select
           value={lead.status || 'new'}
           onChange={(e) => onUpdate(lead.id, { status: e.target.value })}
@@ -81,7 +81,7 @@ export default function LeadRow({ lead, onOpen, onUpdate }) {
         </select>
       </td>
 
-      <td className="px-4 py-3">
+      <td className="px-3 py-3">
         <button
           type="button"
           onClick={() => onOpen(lead)}
@@ -94,11 +94,11 @@ export default function LeadRow({ lead, onOpen, onUpdate }) {
         )}
       </td>
 
-      <td className="px-4 py-3 text-sm">
+      <td className="px-3 py-3 text-sm">
         {lead.email ? (
           <a
             href={`mailto:${lead.email}`}
-            className="text-indigo-600 hover:underline"
+            className="break-all text-indigo-600 hover:underline"
             onClick={(e) => e.stopPropagation()}
           >
             {lead.email}
@@ -113,15 +113,15 @@ export default function LeadRow({ lead, onOpen, onUpdate }) {
         )}
       </td>
 
-      <td className="px-4 py-3 text-sm text-slate-700">{lead.company || '—'}</td>
-      <td className="px-4 py-3 text-sm text-slate-700">{lead.company_size || '—'}</td>
-      <td className="px-4 py-3 text-sm text-slate-700">
+      <td className="px-3 py-3 text-sm text-slate-700">{lead.company || '—'}</td>
+      <td className="px-3 py-3 text-sm text-slate-700">{lead.company_size || '—'}</td>
+      <td className="px-3 py-3 text-sm text-slate-700">
         {INTEREST_LABELS[lead.interest] || lead.interest || '—'}
       </td>
-      <td className="px-4 py-3">
+      <td className="px-3 py-3">
         <UrgencyBadge urgency={lead.urgency} />
       </td>
-      <td className="px-4 py-3 text-sm whitespace-nowrap text-slate-500">
+      <td className="px-3 py-3 text-sm text-slate-500">
         {formatDateTime(lead.created_at)}
         {today && (
           <span className="ml-2 rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700">

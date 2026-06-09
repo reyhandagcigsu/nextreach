@@ -177,16 +177,17 @@ export default function LeadsTable({ leads, capped, onOpen, onUpdate }) {
         )}
       </div>
 
-      {/* Desktop: table. */}
+      {/* Desktop: table. w-full fills the container; overflow-x-auto stays only
+          as a graceful fallback for unusually narrow desktop windows. */}
       <div className="hidden overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm sm:block">
-        <table className="min-w-full">
+        <table className="w-full">
           <thead className="bg-slate-50">
             <tr>
-              <th className="py-3 pl-4 pr-1">
+              <th className="py-3 pl-3 pr-1">
                 <span className="sr-only">Detay</span>
               </th>
               {COLUMNS.map((c) => (
-                <th key={c} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <th key={c} className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                   {c}
                 </th>
               ))}
