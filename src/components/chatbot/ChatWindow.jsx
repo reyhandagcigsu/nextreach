@@ -22,11 +22,16 @@ export default function ChatWindow({ maxHeight }) {
     restart,
   } = useChatMachine({ isSpam: () => !!honeypotRef.current?.value })
 
-  // Auto-scroll to the newest message.
-  const endRef = useRef(null)
+  // Keep the conversation pinned to the latest message. We scroll the list
+  // container's own scrollTop (not scrollIntoView) so we never jump the whole
+  // page on mobile. `maxHeight` is in the deps so that when the keyboard opens
+  // or closes and the window resizes, we re-pin to the bottom instead of
+  // leaving the user stranded mid-thread.
+  const listRef = useRef(null)
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, status])
+    const el = listRef.current
+    if (el) el.scrollTop = el.scrollHeight
+  }, [messages, status, maxHeight])
 
   const isBusy = status === 'submitting'
 
@@ -111,11 +116,10 @@ export default function ChatWindow({ maxHeight }) {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 space-y-2 overflow-y-auto bg-slate-50 px-3 py-3">
+      <div ref={listRef} className="flex-1 space-y-2 overflow-y-auto bg-slate-50 px-3 py-3">
         {messages.map((m) => (
           <MessageBubble key={m.id} role={m.role} text={m.text} />
         ))}
-        <div ref={endRef} />
       </div>
 
       {/* Input area */}
