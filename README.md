@@ -3,6 +3,9 @@
 B2B SaaS landing page'ine gömülü, **kural tabanlı (rule-based) bir chatbot** ile
 lead (talep) toplayan ve bunları **`/admin`** ekranında listeleyen küçük bir uygulama.
 
+> 🔗 **Canlı demo:** **https://nextreach-nine.vercel.app/**
+> &nbsp;·&nbsp; **Admin paneli:** [`/admin`](https://nextreach-nine.vercel.app/admin) (parola korumalı — bk. §4)
+
 - **Frontend:** React (Vite) + Tailwind CSS v4
 - **Veritabanı / API:** Supabase (özel backend yok)
 - **Kapsam dışı:** kimlik doğrulama (auth) ve e-posta entegrasyonu
