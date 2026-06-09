@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 export default function TextInput({
   placeholder,
@@ -9,6 +9,7 @@ export default function TextInput({
   disabled,
 }) {
   const [value, setValue] = useState('')
+  const inputRef = useRef(null)
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -19,12 +20,18 @@ export default function TextInput({
     // We clear optimistically — invalid input is echoed back via the error
     // line, and re-typing is cheap.
     setValue('')
+    // Keep focus on the input so the mobile keyboard stays open through
+    // consecutive text steps (name → email → company) instead of closing and
+    // re-opening on every send (the "screen jump" bug). If the next step isn't
+    // a text input, the field unmounts and the keyboard closes naturally.
+    inputRef.current?.focus()
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-1">
       <div className="flex gap-2">
         <input
+          ref={inputRef}
           type="text"
           autoFocus
           value={value}
@@ -38,6 +45,9 @@ export default function TextInput({
         <button
           type="submit"
           disabled={disabled}
+          // Prevent the tap from stealing focus from the input (which would
+          // close the mobile keyboard). The click/submit still fires.
+          onMouseDown={(e) => e.preventDefault()}
           className="rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-50"
         >
           Gönder
